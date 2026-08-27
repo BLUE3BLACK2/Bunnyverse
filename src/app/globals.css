@@ -1,26 +1,92 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  
+  --color-surface-light: #ffffff;
+  --color-surface-light-subtle: #f7f7f7;
+  --color-surface-light-border: #e5e5e5;
+  --color-surface-light-text: #000000;
+  --color-surface-light-muted: #777777;
+
+  --color-surface-dark: #000000;
+  --color-surface-dark-subtle: #111111;
+  --color-surface-dark-card: #0a0a0a;
+  --color-surface-dark-border: #292929;
+  --color-surface-dark-text: #ffffff;
+  --color-surface-dark-muted: #888888;
+}
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --background-secondary: #f7f7f7;
+  --card-bg: #ffffff;
+  --foreground: #000000;
+  --foreground-secondary: #555555;
+  --foreground-muted: #777777;
+  --border-color: #e5e5e5;
+  --button-primary-bg: #000000;
+  --button-primary-text: #ffffff;
+  color-scheme: light dark;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+.dark {
+  --background: #000000;
+  --background-secondary: #111111;
+  --card-bg: #0a0a0a;
+  --foreground: #ffffff;
+  --foreground-secondary: #b5b5b5;
+  --foreground-muted: #888888;
+  --border-color: #292929;
+  --button-primary-bg: #ffffff;
+  --button-primary-text: #000000;
 }
 
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Helvetica Neue", Helvetica, Arial, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  letter-spacing: -0.01em;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Minimalist scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #d4d4d4;
+  border-radius: 2px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #333333;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Editorial letter-spacing helpers */
+.tracking-editorial {
+  letter-spacing: 0.12em;
+}
+
+.tracking-nav {
+  letter-spacing: 0.08em;
 }
