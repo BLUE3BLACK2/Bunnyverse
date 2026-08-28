@@ -1,53 +1,45 @@
 'use client';
 
 import React from 'react';
-import { MemberShowcaseHero } from '@/components/home/MemberShowcaseHero';
-import { ShopByMember } from '@/components/home/ShopByMember';
-import { ShopByCategory } from '@/components/home/ShopByCategory';
+import { HomeHero } from '@/components/home/HomeHero';
+import { ServiceBenefits } from '@/components/home/ServiceBenefits';
 import { NewArrivals } from '@/components/home/NewArrivals';
 import { BestSellers } from '@/components/home/BestSellers';
-import { ExclusiveCollection } from '@/components/home/ExclusiveCollection';
+import { ShopByCategory } from '@/components/home/ShopByCategory';
 import { FlashSaleBanner } from '@/components/home/FlashSaleBanner';
-import { PopularSearches } from '@/components/home/PopularSearches';
-import { PopularCategories } from '@/components/home/PopularCategories';
-import { ServiceBenefits } from '@/components/home/ServiceBenefits';
 import { RecentlyViewedSection } from '@/components/home/RecentlyViewedSection';
+import { PopularCategories } from '@/components/home/PopularCategories';
+import { PopularSearches } from '@/components/home/PopularSearches';
 
 export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen bg-white dark:bg-black transition-colors">
-      {/* 1. Interactive Square Member Hero */}
-      <MemberShowcaseHero />
+      {/* 1. Fashion Editorial Hero (Reference 1) */}
+      <HomeHero />
 
-      {/* 2. Shop by Member */}
-      <ShopByMember />
-
-      {/* 3. Shop by Category */}
-      <ShopByCategory />
-
-      {/* 4. New Arrivals Drop */}
-      <NewArrivals />
-
-      {/* 5. Best Sellers */}
-      <BestSellers />
-
-      {/* 6. Exclusive Collection */}
-      <ExclusiveCollection />
-
-      {/* 7. Flash Sale Promotional Banner */}
-      <FlashSaleBanner />
-
-      {/* 8. Popular Searches Discovery Strip */}
-      <PopularSearches />
-
-      {/* 9. Popular Categories Discovery Strip */}
-      <PopularCategories />
-
-      {/* 10. Service / Trust Information */}
+      {/* 2. Service / Store Benefits Strip */}
       <ServiceBenefits />
 
-      {/* 11. Recently Viewed (if available) */}
+      {/* 3. New Arrivals Drop */}
+      <NewArrivals />
+
+      {/* 4. Best Sellers */}
+      <BestSellers />
+
+      {/* 5. Shop by Category */}
+      <ShopByCategory />
+
+      {/* 6. Promotional Campaign Carousel (More Ways to Save) */}
+      <FlashSaleBanner />
+
+      {/* 7. Recently Viewed Products */}
       <RecentlyViewedSection />
+
+      {/* 8. Popular Categories Discovery Strip */}
+      <PopularCategories />
+
+      {/* 9. Popular Searches Discovery Strip */}
+      <PopularSearches />
     </div>
   );
 }

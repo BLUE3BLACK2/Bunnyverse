@@ -55,6 +55,7 @@ export interface Product {
   isNew?: boolean;
   isBestSeller?: boolean;
   variants?: ProductVariant[];
+  colors?: string[]; // e.g. ['#111111', '#F5F5F5', '#0148C3', '#F43F5E']
   sizes?: string[]; // e.g. ['S', 'M', 'L', 'XL', 'XXL']
   tags: string[];
   details?: string[];

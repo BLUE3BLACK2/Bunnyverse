@@ -164,13 +164,13 @@ export const FlashSaleBanner: React.FC = () => {
         </div>
 
         {/* Main Promotional Banner Structure with Arrows on Left & Right ([ ← ] [ CARD ] [ → ]) */}
-        <div className="flex items-center gap-2 sm:gap-3.5">
+        <div className="flex items-center gap-1.5 sm:gap-3.5">
           {/* Left Arrow Beside Card */}
           <button
             type="button"
             onClick={onPrevClick}
             aria-label="Previous Promotion"
-            className="p-2 sm:p-2.5 rounded-[2px] border border-[#E5E5E5] dark:border-[#292929] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer shrink-0"
+            className="p-1.5 sm:p-2.5 rounded-[2px] border border-[#E5E5E5] dark:border-[#292929] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer shrink-0"
           >
             <ChevronLeft size={18} strokeWidth={1.5} />
           </button>
@@ -200,7 +200,7 @@ export const FlashSaleBanner: React.FC = () => {
                   backgroundColor: currentPromo.theme.bg,
                   borderColor: currentPromo.theme.border
                 }}
-                className="border rounded-[4px] p-6 sm:p-8 lg:p-10 transition-colors shadow-sm"
+                className="border rounded-[4px] p-4 sm:p-8 lg:p-10 transition-colors shadow-sm"
               >
                 <div className="grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8 items-center">
                   {/* Left Column: Promotion Details */}
@@ -299,7 +299,7 @@ export const FlashSaleBanner: React.FC = () => {
                         backgroundColor: currentPromo.theme.imageBg,
                         borderColor: currentPromo.theme.border
                       }}
-                      className="relative w-full max-w-[280px] sm:max-w-[320px] aspect-square rounded-[2px] overflow-hidden border p-3 flex items-center justify-center shadow-inner"
+                      className="relative w-full max-w-[220px] sm:max-w-[320px] aspect-square rounded-[2px] overflow-hidden border p-2 sm:p-3 flex items-center justify-center shadow-inner"
                     >
                       <div className="relative w-full h-full rounded-[2px] overflow-hidden">
                         <Image

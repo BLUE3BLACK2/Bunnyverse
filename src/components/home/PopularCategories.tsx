@@ -17,7 +17,7 @@ export const PopularCategories: React.FC = () => {
   ];
 
   return (
-    <section className="py-8 md:py-10 bg-[#F7F7F7] dark:bg-black transition-colors border-b border-[#E5E5E5] dark:border-[#292929]">
+    <section className="py-8 md:py-10 bg-white dark:bg-black transition-colors border-b border-[#E5E5E5] dark:border-[#292929]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col md:flex-row md:items-center gap-4">
           <div className="flex items-center gap-2 shrink-0">

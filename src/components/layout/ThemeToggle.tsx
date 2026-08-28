@@ -1,52 +1,22 @@
 'use client';
 
-import React, { useSyncExternalStore } from 'react';
+import React from 'react';
 import { Sun, Moon } from 'lucide-react';
-
-const subscribeTheme = (callback: () => void) => {
-  window.addEventListener('storage', callback);
-  const observer = new MutationObserver(callback);
-  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
-  return () => {
-    window.removeEventListener('storage', callback);
-    observer.disconnect();
-  };
-};
-
-const getThemeSnapshot = () => {
-  return typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
-    ? 'dark'
-    : 'light';
-};
-
-const getServerSnapshot = () => 'light';
+import { useThemeStore } from '@/store/themeStore';
 
 export const ThemeToggle: React.FC = () => {
-  const currentTheme = useSyncExternalStore(subscribeTheme, getThemeSnapshot, getServerSnapshot);
-
-  const toggleTheme = () => {
-    const isDark = currentTheme === 'dark';
-    if (isDark) {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    } else {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    }
-  };
+  const { theme, toggleTheme } = useThemeStore();
 
   return (
     <button
+      type="button"
       onClick={toggleTheme}
       aria-label="Toggle theme"
-      title={currentTheme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
       className="p-2 text-black dark:text-white hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-[4px] transition-colors cursor-pointer"
     >
-      {currentTheme === 'dark' ? (
-        <Sun size={17} strokeWidth={1.5} />
-      ) : (
-        <Moon size={17} strokeWidth={1.5} />
-      )}
+      <Sun size={17} strokeWidth={1.5} className="hidden dark:block" />
+      <Moon size={17} strokeWidth={1.5} className="block dark:hidden" />
     </button>
   );
 };
