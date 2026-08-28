@@ -12,10 +12,11 @@ import { MemberId } from '@/types';
 export const MemberShowcaseHero: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [direction, setDirection] = useState<number>(1);
-  const [isPaused, setIsPaused] = useState(false);
+
   const touchStartX = useRef<number | null>(null);
   const mouseStartX = useRef<number | null>(null);
-  const autoplayTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const isDraggingRef = useRef(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentMember = MEMBERS[currentIndex];
 
@@ -26,62 +27,113 @@ export const MemberShowcaseHero: React.FC = () => {
       currentMember.featuredProductIds.includes(p.id)
   ).slice(0, 3);
 
+  // Next Member handler
   const handleNext = useCallback(() => {
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % MEMBERS.length);
   }, []);
 
+  // Prev Member handler
   const handlePrev = useCallback(() => {
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + MEMBERS.length) % MEMBERS.length);
   }, []);
 
+  // Start / Restart 3000ms timer
+  const startTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    timerRef.current = setInterval(() => {
+      handleNext();
+    }, 3000);
+  }, [handleNext]);
+
+  // Reset timer on any manual interaction
+  const resetTimer = useCallback(() => {
+    startTimer();
+  }, [startTimer]);
+
+  // Direct select member via top tabs
   const handleSelectMember = (index: number) => {
     if (index === currentIndex) return;
     setDirection(index > currentIndex ? 1 : -1);
     setCurrentIndex(index);
+    resetTimer();
   };
 
-  // 6-second autoplay with pause on hover/interaction
+  // Autoplay lifecycle (3 seconds)
   useEffect(() => {
-    if (isPaused) {
-      if (autoplayTimerRef.current) clearInterval(autoplayTimerRef.current);
-      return;
-    }
-    autoplayTimerRef.current = setInterval(() => {
-      handleNext();
-    }, 6000);
-    return () => {
-      if (autoplayTimerRef.current) clearInterval(autoplayTimerRef.current);
+    startTimer();
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      } else {
+        // Tab visible again: restart 3-second countdown
+        startTimer();
+      }
     };
-  }, [isPaused, handleNext]);
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [startTimer]);
+
+  // Arrow click handlers with timer reset
+  const onPrevClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handlePrev();
+    resetTimer();
+  };
+
+  const onNextClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    handleNext();
+    resetTimer();
+  };
 
   // Touch Swipe handlers (Mobile)
   const handleTouchStart = (e: React.TouchEvent) => {
+    isDraggingRef.current = true;
     touchStartX.current = e.touches[0].clientX;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
+    isDraggingRef.current = false;
     if (touchStartX.current === null) return;
     const diff = touchStartX.current - e.changedTouches[0].clientX;
     if (Math.abs(diff) > 40) {
       if (diff > 0) handleNext();
       else handlePrev();
+      resetTimer();
     }
     touchStartX.current = null;
   };
 
   // Mouse Drag handlers (Desktop)
   const handleMouseDown = (e: React.MouseEvent) => {
+    isDraggingRef.current = true;
     mouseStartX.current = e.clientX;
   };
 
   const handleMouseUp = (e: React.MouseEvent) => {
+    isDraggingRef.current = false;
     if (mouseStartX.current === null) return;
     const diff = mouseStartX.current - e.clientX;
     if (Math.abs(diff) > 50) {
       if (diff > 0) handleNext();
       else handlePrev();
+      resetTimer();
     }
     mouseStartX.current = null;
   };
@@ -89,12 +141,16 @@ export const MemberShowcaseHero: React.FC = () => {
   return (
     <section
       className="relative w-full bg-white dark:bg-black text-black dark:text-white py-8 md:py-14 border-b border-[#E5E5E5] dark:border-[#292929] select-none transition-colors"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onMouseDown={handleMouseDown}
       onMouseUp={handleMouseUp}
+      onMouseEnter={() => {
+        if (timerRef.current) clearInterval(timerRef.current);
+      }}
+      onMouseLeave={() => {
+        startTimer();
+      }}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Top Minimalist Member Navigation Indicator (01 MINJI · 02 HANNI · 03 DANIELLE · 04 HAERIN · 05 HYEIN) */}
@@ -103,6 +159,7 @@ export const MemberShowcaseHero: React.FC = () => {
             {MEMBERS.map((m, idx) => (
               <button
                 key={m.id}
+                type="button"
                 onClick={() => handleSelectMember(idx)}
                 className={`text-xs tracking-editorial transition-colors cursor-pointer whitespace-nowrap pb-1 ${
                   idx === currentIndex
@@ -115,24 +172,11 @@ export const MemberShowcaseHero: React.FC = () => {
             ))}
           </div>
 
+          {/* Member Counter */}
           <div className="hidden sm:flex items-center gap-2">
             <span className="text-xs font-mono text-[#777777] dark:text-[#888888]">
               0{currentIndex + 1} / 0{MEMBERS.length}
             </span>
-            <button
-              onClick={handlePrev}
-              aria-label="Previous Member"
-              className="p-1 text-[#555555] dark:text-[#B5B5B5] hover:text-black dark:hover:text-white transition-colors"
-            >
-              <ChevronLeft size={18} strokeWidth={1.5} />
-            </button>
-            <button
-              onClick={handleNext}
-              aria-label="Next Member"
-              className="p-1 text-[#555555] dark:text-[#B5B5B5] hover:text-black dark:hover:text-white transition-colors"
-            >
-              <ChevronRight size={18} strokeWidth={1.5} />
-            </button>
           </div>
         </div>
 
@@ -142,7 +186,7 @@ export const MemberShowcaseHero: React.FC = () => {
           <div className="lg:col-span-6 space-y-6">
             <div className="space-y-3">
               <span className="text-[11px] font-medium tracking-editorial uppercase text-[#777777] dark:text-[#888888] block">
-                EDITORIAL CAPSULE // 0{currentMember.order}
+                EDITORIAL CAPSULE · 0{currentMember.order}
               </span>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-medium tracking-tight uppercase leading-[1.1]">
@@ -158,7 +202,7 @@ export const MemberShowcaseHero: React.FC = () => {
             {/* CTA Button */}
             <div className="pt-1">
               <Link
-                href={`/shop?member=${currentMember.slug}`}
+                href={`/members/${currentMember.slug}`}
                 className="inline-flex items-center gap-2 px-6 py-3 bg-black text-white dark:bg-white dark:text-black text-xs font-medium tracking-editorial uppercase rounded-[4px] hover:opacity-90 transition-opacity"
               >
                 <span>SHOP {currentMember.name.toUpperCase()} COLLECTION</span>
@@ -205,9 +249,20 @@ export const MemberShowcaseHero: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Square 1:1 Member Container with Video/Image Architecture */}
-          <div className="lg:col-span-6 flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[480px] aspect-square rounded-[4px] overflow-hidden border border-[#E5E5E5] dark:border-[#292929] bg-[#F7F7F7] dark:bg-[#111111]">
+          {/* Right Column: Large Square Member Image with Arrows Directly Beside Image ([ ← ] [ IMAGE ] [ → ]) */}
+          <div className="lg:col-span-6 flex items-center justify-center lg:justify-end gap-2 sm:gap-3.5">
+            {/* Left Member Arrow */}
+            <button
+              type="button"
+              onClick={onPrevClick}
+              aria-label="Previous Member"
+              className="p-2 sm:p-2.5 rounded-[2px] border border-[#E5E5E5] dark:border-[#292929] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer shrink-0"
+            >
+              <ChevronLeft size={18} strokeWidth={1.5} />
+            </button>
+
+            {/* Square 1:1 Member Container */}
+            <div className="relative flex-1 max-w-[440px] sm:max-w-[480px] aspect-square rounded-[4px] overflow-hidden border border-[#E5E5E5] dark:border-[#292929] bg-[#F7F7F7] dark:bg-[#111111]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={currentMember.id}
@@ -244,6 +299,16 @@ export const MemberShowcaseHero: React.FC = () => {
                 </motion.div>
               </AnimatePresence>
             </div>
+
+            {/* Right Member Arrow */}
+            <button
+              type="button"
+              onClick={onNextClick}
+              aria-label="Next Member"
+              className="p-2 sm:p-2.5 rounded-[2px] border border-[#E5E5E5] dark:border-[#292929] text-black dark:text-white hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-colors cursor-pointer shrink-0"
+            >
+              <ChevronRight size={18} strokeWidth={1.5} />
+            </button>
           </div>
         </div>
       </div>

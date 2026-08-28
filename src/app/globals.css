@@ -4,6 +4,7 @@
 
 @theme {
   --font-sans: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: "Playfair Display", "Didot", "Bodoni MT", Georgia, "Times New Roman", serif;
   
   --color-surface-light: #ffffff;
   --color-surface-light-subtle: #f7f7f7;
@@ -90,3 +91,9 @@ body {
 .tracking-nav {
   letter-spacing: 0.08em;
 }
+
+.font-editorial-serif {
+  font-family: "Playfair Display", "Didot", "Bodoni MT", Georgia, "Times New Roman", serif;
+  letter-spacing: -0.02em;
+}
+

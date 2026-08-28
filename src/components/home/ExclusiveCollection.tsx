@@ -10,7 +10,7 @@ export const ExclusiveCollection: React.FC = () => {
   const exclusiveProducts = PRODUCTS.filter((p) => p.isBestSeller || p.category === 'bundles').slice(0, 4);
 
   return (
-    <section className="py-10 md:py-14 bg-[#F7F7F7] dark:bg-[#0A0A0A] transition-colors border-b border-[#E5E5E5] dark:border-[#292929]">
+    <section className="py-10 md:py-14 bg-[#F7F7F7] dark:bg-black transition-colors border-b border-[#E5E5E5] dark:border-[#292929]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">

@@ -58,18 +58,27 @@ export const Navbar: React.FC = () => {
     'Hanni'
   ];
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (searchQuery.trim()) {
-      setIsSearchFocused(false);
-      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    const formData = new FormData(e.currentTarget);
+    const formQuery = (formData.get('search') as string || '').trim();
+    const targetQuery = formQuery || searchQuery.trim();
+
+    setIsSearchFocused(false);
+    setIsMobileMenuOpen(false);
+
+    if (targetQuery) {
+      router.push(`/shop?search=${encodeURIComponent(targetQuery)}`);
+    } else {
+      router.push('/shop');
     }
   };
 
   const handleQuickSearch = (term: string) => {
     setSearchQuery(term);
     setIsSearchFocused(false);
-    router.push(`/shop?search=${encodeURIComponent(term)}`);
+    setIsMobileMenuOpen(false);
+    router.push(`/shop?search=${encodeURIComponent(term.trim())}`);
   };
 
   // Close search suggestions on outside click
@@ -148,6 +157,8 @@ export const Navbar: React.FC = () => {
             <form onSubmit={handleSearchSubmit} className="relative">
               <input
                 type="text"
+                name="search"
+                autoComplete="off"
                 value={searchQuery}
                 onFocus={() => setIsSearchFocused(true)}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -157,7 +168,7 @@ export const Navbar: React.FC = () => {
               <button
                 type="submit"
                 aria-label="Search"
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555555] dark:text-[#B5B5B5] hover:text-black dark:hover:text-white"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555555] dark:text-[#B5B5B5] hover:text-black dark:hover:text-white cursor-pointer p-1"
               >
                 <Search size={14} strokeWidth={1.5} />
               </button>
@@ -173,6 +184,11 @@ export const Navbar: React.FC = () => {
                   {popularSearches.map((term) => (
                     <button
                       key={term}
+                      type="button"
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleQuickSearch(term);
+                      }}
                       onClick={() => handleQuickSearch(term)}
                       className="px-2.5 py-1 rounded-[2px] bg-[#F7F7F7] dark:bg-[#111111] hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black text-xs text-[#555555] dark:text-[#B5B5B5] transition-colors cursor-pointer"
                     >
@@ -268,12 +284,18 @@ export const Navbar: React.FC = () => {
               <form onSubmit={handleSearchSubmit} className="mt-4 relative">
                 <input
                   type="text"
+                  name="search"
+                  autoComplete="off"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search merchandise..."
                   className="w-full pl-3 pr-8 py-2 bg-[#F7F7F7] dark:bg-[#111111] border border-[#E5E5E5] dark:border-[#292929] rounded-[4px] text-xs text-black dark:text-white"
                 />
-                <button type="submit" className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555555]">
+                <button
+                  type="submit"
+                  aria-label="Search"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#555555] dark:text-[#B5B5B5] hover:text-black dark:hover:text-white cursor-pointer p-1"
+                >
                   <Search size={14} />
                 </button>
               </form>

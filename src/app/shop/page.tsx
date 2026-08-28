@@ -27,17 +27,21 @@ function ShopContent() {
       ? 'best_selling'
       : 'featured';
 
-  const [selectedCategory, setSelectedCategory] = useState<string>(paramCategory);
-  const [selectedMember, setSelectedMember] = useState<string>(paramMember);
-  const [searchQuery, setSearchQuery] = useState<string>(paramSearch);
+  const [localCategory, setLocalCategory] = useState<string | null>(null);
+  const [localMember, setLocalMember] = useState<string | null>(null);
+  const [localSearch, setLocalSearch] = useState<string | null>(null);
   const [selectedPrice, setSelectedPrice] = useState<string>('all');
   const [selectedStock, setSelectedStock] = useState<string>('all');
   const [selectedSort, setSelectedSort] = useState<SortOption>(defaultSort);
 
+  const setSelectedCategory = (cat: string) => setLocalCategory(cat);
+  const setSelectedMember = (m: string) => setLocalMember(m);
+  const setSearchQuery = (q: string) => setLocalSearch(q);
+
   // Effective values combine searchParams & local selection
-  const effectiveCategory = selectedCategory !== 'all' ? selectedCategory : paramCategory;
-  const effectiveMember = selectedMember !== 'all' ? selectedMember : paramMember;
-  const effectiveSearch = searchQuery.trim() ? searchQuery.trim() : paramSearch.trim();
+  const effectiveCategory = localCategory !== null ? localCategory : paramCategory;
+  const effectiveMember = localMember !== null ? localMember : paramMember;
+  const effectiveSearch = (localSearch !== null ? localSearch : paramSearch).trim();
 
   // Filtering logic
   const filteredProducts = useMemo(() => {
