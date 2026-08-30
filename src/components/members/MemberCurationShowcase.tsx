@@ -260,7 +260,7 @@ export const MemberCurationShowcase: React.FC<MemberCurationShowcaseProps> = ({ 
 
                 {/* Clean Bottom Label */}
                 <div className="absolute bottom-3 left-3 bg-black/80 dark:bg-white/90 text-white dark:text-black text-[10px] uppercase tracking-editorial px-2.5 py-1 rounded-[2px]">
-                  0{currentMember.order} · {currentMember.name}
+                  {currentMember.name}
                 </div>
               </motion.div>
             </AnimatePresence>

@@ -144,7 +144,7 @@ export const FlashSaleBanner: React.FC = () => {
   return (
     <section className="py-10 md:py-14 bg-white dark:bg-black transition-colors border-b border-[#E5E5E5] dark:border-[#292929] select-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        {/* Section Header with Counter Only */}
+        {/* Section Header */}
         <div className="flex items-center justify-between">
           <div>
             <span className="text-[10px] uppercase font-medium tracking-editorial text-[#777777] dark:text-[#888888] block">
@@ -153,13 +153,6 @@ export const FlashSaleBanner: React.FC = () => {
             <h2 className="text-xl sm:text-2xl font-medium tracking-tight uppercase text-black dark:text-white mt-0.5">
               More Ways to Save
             </h2>
-          </div>
-
-          {/* Slide Counter in Header */}
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-mono text-[#777777] dark:text-[#888888]">
-              0{currentIndex + 1} / 0{PROMOTIONS.length}
-            </span>
           </div>
         </div>
 

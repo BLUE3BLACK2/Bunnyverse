@@ -1,120 +1,491 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, ArrowRight, Sparkles } from 'lucide-react';
+import { HERO_SLIDES, isDarkColor } from '@/data/heroSlides';
 
 export const HomeHero: React.FC = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [direction, setDirection] = useState(1);
+
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const touchStartX = useRef<number | null>(null);
+  const isDraggingRef = useRef(false);
+
+  const totalSlides = HERO_SLIDES.length;
+  const currentSlide = HERO_SLIDES[currentIndex];
+  const isDark = isDarkColor(currentSlide.backgroundColor);
+
+  // ==========================================
+  // SLIDE NAVIGATION
+  // ==========================================
+
+  const handleNext = useCallback(() => {
+    setDirection(1);
+    setCurrentIndex((prev) => (prev + 1) % totalSlides);
+  }, [totalSlides]);
+
+  const handlePrev = useCallback(() => {
+    setDirection(-1);
+    setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides);
+  }, [totalSlides]);
+
+  // ==========================================
+  // AUTOPLAY
+  // ==========================================
+
+  const startTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+
+    timerRef.current = setInterval(() => {
+      handleNext();
+    }, 5000);
+  }, [handleNext]);
+
+  const resetTimer = useCallback(() => {
+    startTimer();
+  }, [startTimer]);
+
+  const handleSelectSlide = (index: number) => {
+    if (index === currentIndex) return;
+
+    setDirection(index > currentIndex ? 1 : -1);
+    setCurrentIndex(index);
+    resetTimer();
+  };
+
+  // ==========================================
+  // AUTOPLAY LIFECYCLE
+  // ==========================================
+
+  useEffect(() => {
+    startTimer();
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      } else {
+        startTimer();
+      }
+    };
+
+    document.addEventListener(
+      'visibilitychange',
+      handleVisibilityChange
+    );
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+
+      document.removeEventListener(
+        'visibilitychange',
+        handleVisibilityChange
+      );
+    };
+  }, [startTimer]);
+
+  // ==========================================
+  // TOUCH / SWIPE
+  // ==========================================
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX.current === null) return;
+
+    const diff =
+      touchStartX.current - e.changedTouches[0].clientX;
+
+    if (Math.abs(diff) > 40) {
+      if (diff > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+
+      resetTimer();
+    }
+
+    touchStartX.current = null;
+  };
+
+  // ==========================================
+  // MOUSE DRAG
+  // ==========================================
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    touchStartX.current = e.clientX;
+    isDraggingRef.current = true;
+  };
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (
+      !isDraggingRef.current ||
+      touchStartX.current === null
+    ) {
+      return;
+    }
+
+    const diff =
+      touchStartX.current - e.clientX;
+
+    if (Math.abs(diff) > 50) {
+      if (diff > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
+
+      resetTimer();
+    }
+
+    touchStartX.current = null;
+    isDraggingRef.current = false;
+  };
+
+  // ==========================================
+  // COLORS
+  // ==========================================
+
+  const textColorClass = isDark
+    ? 'text-white'
+    : 'text-black';
+
+  const subtitleColorClass = isDark
+    ? 'text-white/80'
+    : 'text-black/80';
+
+  const mutedColorClass = isDark
+    ? 'text-white/60'
+    : 'text-black/60';
+
+  const badgeBgClass = isDark
+    ? 'bg-white/15 text-white border-white/20'
+    : 'bg-black/10 text-black border-black/20';
+
+  const primaryBtnClass = isDark
+    ? 'bg-white text-black hover:bg-neutral-200'
+    : 'bg-black text-white hover:bg-neutral-800';
+
+  const secondaryBtnClass = isDark
+    ? 'border-white/40 text-white hover:bg-white/10 hover:border-white'
+    : 'border-black/40 text-black hover:bg-black/10 hover:border-black';
+
+  const arrowBtnClass = isDark
+    ? 'border-white/30 text-white hover:bg-white hover:text-black'
+    : 'border-black/30 text-black hover:bg-black hover:text-white';
+
+  // ==========================================
+  // HERO
+  // ==========================================
+
   return (
-    <section className="relative w-full bg-[#FBFBFB] dark:bg-black transition-colors border-b border-[#E5E5E5] dark:border-[#292929] overflow-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 md:py-20 lg:py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
-          {/* Left Column: Large Editorial Merchandise Visual (Inspired by Reference 1) */}
-          <div className="lg:col-span-6 flex justify-center order-2 lg:order-1">
-            <div className="relative w-full max-w-[480px] sm:max-w-[520px] aspect-4/5 sm:aspect-square rounded-[4px] overflow-hidden bg-neutral-100 dark:bg-neutral-900 border border-[#E5E5E5] dark:border-[#292929] p-4 sm:p-6 flex items-center justify-center shadow-xs">
-              {/* Main Lifestyle / Editorial Product Image */}
-              <div className="relative w-full h-full rounded-[2px] overflow-hidden bg-white dark:bg-black/60 flex items-center justify-center">
-                <Image
-                  src="/products/bunny-starter-pack.png"
-                  alt="BUNNYVERSE Essentials Collection"
-                  fill
-                  priority
-                  className="object-cover hover:scale-103 transition-transform duration-500"
-                />
-              </div>
+    <section
+      style={{
+        backgroundColor: currentSlide.backgroundColor,
+        transition: 'background-color 0.6s ease-in-out',
+      }}
+      className="relative w-full overflow-hidden select-none transition-colors border-b border-black/10 dark:border-white/10"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseEnter={() => {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+      }}
+      onMouseLeave={() => {
+        startTimer();
+      }}
+    >
 
-              {/* Editorial Tag Overlay */}
-              <div className="absolute top-3.5 left-3.5 sm:top-6 sm:left-6 bg-white/95 dark:bg-black/90 backdrop-blur-xs border border-[#E5E5E5] dark:border-[#292929] px-3 py-1.5 rounded-[2px] shadow-xs flex items-center gap-1.5">
-                <Sparkles size={12} className="text-black dark:text-white" />
-                <span className="text-[10px] font-mono font-medium uppercase tracking-editorial text-black dark:text-white">
-                  NEW SEASON 2026
-                </span>
-              </div>
-
-              {/* Floating Product Highlight Pill */}
-              <div className="absolute bottom-3.5 right-3.5 sm:bottom-6 sm:right-6 bg-white/95 dark:bg-black/90 backdrop-blur-xs border border-[#E5E5E5] dark:border-[#292929] p-2.5 sm:p-3 rounded-[2px] shadow-sm flex items-center gap-2.5 sm:gap-3">
-                <div className="relative w-10 h-10 rounded-[2px] overflow-hidden bg-neutral-100 dark:bg-neutral-800 shrink-0">
-                  <Image
-                    src="/products/binky-bong-special.png"
-                    alt="Official Lightstick"
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-                <div className="text-left">
-                  <span className="text-[11px] font-medium text-black dark:text-white block leading-tight">
-                    Binky Bong Special
-                  </span>
-                  <span className="text-[10px] font-mono text-[#777777] dark:text-[#888888]">
-                    Rp680.000
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Column: Editorial Typography & Clean CTAs (Inspired by Reference 1) */}
-          <div className="lg:col-span-6 space-y-6 text-center lg:text-left order-1 lg:order-2">
-            {/* Top Minimalist Line Heading */}
-            <div className="flex items-center justify-center lg:justify-start gap-3">
-              <span className="w-8 h-px bg-black/40 dark:bg-white/40 hidden sm:inline-block" />
-              <span className="text-xs uppercase font-medium tracking-[0.2em] pl-[0.2em] text-[#777777] dark:text-[#888888]">
-                BUNNYVERSE ESSENTIALS
-              </span>
-              <span className="w-8 h-px bg-black/40 dark:bg-white/40 hidden sm:inline-block" />
-            </div>
-
-            {/* Main Editorial Headline */}
-            <div className="space-y-3">
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-medium tracking-tight uppercase text-black dark:text-white leading-[1.08]">
-                Discover Products <br className="hidden sm:inline" />
-                <span className="font-normal text-[#555555] dark:text-[#B5B5B5]">You&apos;ll Love</span>
-              </h1>
-
-              <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] max-w-lg mx-auto lg:mx-0 leading-relaxed font-normal">
-                Shop official-inspired merchandise, collectible streetwear, accessories, and limited edition items crafted for Bunnies worldwide.
-              </p>
-            </div>
-
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2 w-full sm:w-auto">
-              <Link
-                href="/shop"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 bg-black text-white dark:bg-white dark:text-black text-xs font-medium tracking-editorial uppercase rounded-[2px] hover:opacity-85 transition-opacity shadow-xs"
-              >
-                <span>SHOP NOW</span>
-                <ArrowRight size={14} />
-              </Link>
-
-              <Link
-                href="/new-arrivals"
-                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 bg-white dark:bg-black text-black dark:text-white border border-[#E5E5E5] dark:border-[#292929] text-xs font-medium tracking-editorial uppercase rounded-[2px] hover:border-black dark:hover:border-white transition-colors"
-              >
-                <span>EXPLORE COLLECTION</span>
-              </Link>
-            </div>
-
-            {/* Customer Trust Proof */}
-            <div className="pt-4 flex items-center justify-center lg:justify-start gap-3 text-xs text-[#777777] dark:text-[#888888]">
-              <div className="flex -space-x-1.5 overflow-hidden">
-                <div className="relative inline-block w-6 h-6 rounded-full ring-2 ring-white dark:ring-black overflow-hidden bg-neutral-200">
-                  <Image src="/members/minji.jpg" alt="Fan" fill className="object-cover" />
-                </div>
-                <div className="relative inline-block w-6 h-6 rounded-full ring-2 ring-white dark:ring-black overflow-hidden bg-neutral-200">
-                  <Image src="/members/hanni.jpg" alt="Fan" fill className="object-cover" />
-                </div>
-                <div className="relative inline-block w-6 h-6 rounded-full ring-2 ring-white dark:ring-black overflow-hidden bg-neutral-200">
-                  <Image src="/members/haerin.jpg" alt="Fan" fill className="object-cover" />
-                </div>
-              </div>
-              <span className="text-[11px] font-normal">
-                Loved by <strong>50,000+</strong> Bunnies worldwide
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* Background Decorative Ambient Watermark */}
+      <div
+        className={`absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden opacity-5 font-black uppercase text-[18vw] leading-none tracking-tighter whitespace-nowrap ${textColorClass}`}
+      >
+        BUNNYVERSE
       </div>
+
+      {/* ==========================================
+          HERO CONTENT WRAPPER
+
+          IMPORTANT:
+          Reduced top spacing to remove excessive
+          gap between navbar and hero.
+      ========================================== */}
+
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 pb-0">
+
+        {/* ==========================================
+            MAIN HERO GRID
+
+            items-center keeps left content vertically
+            aligned with the right image.
+        ========================================== */}
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center min-h-[460px] sm:min-h-[520px] lg:min-h-[580px]">
+
+          {/* ==========================================
+              LEFT COLUMN
+          ========================================== */}
+
+          <div className="lg:col-span-6 space-y-6 text-center lg:text-left order-2 lg:order-1 z-10">
+
+            <AnimatePresence mode="wait">
+
+              <motion.div
+                key={`text-${currentSlide.id}`}
+                initial={{
+                  opacity: 0,
+                  y: 15,
+                }}
+                animate={{
+                  opacity: 1,
+                  y: 0,
+                }}
+                exit={{
+                  opacity: 0,
+                  y: -15,
+                }}
+                transition={{
+                  duration: 0.4,
+                  ease: 'easeOut',
+                }}
+                className="space-y-4 sm:space-y-5"
+              >
+
+                {/* Category & Campaign Eyebrow */}
+                <div className="flex items-center justify-center lg:justify-start gap-2.5">
+
+                  <span
+                    className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-[2px] text-[10px] font-mono font-medium tracking-editorial uppercase border ${badgeBgClass}`}
+                  >
+                    <Sparkles size={11} />
+
+                    <span>
+                      {currentSlide.tag}
+                    </span>
+                  </span>
+
+                  <span
+                    className={`text-[11px] font-mono uppercase tracking-editorial font-medium ${mutedColorClass}`}
+                  >
+                    {currentSlide.category}
+                  </span>
+
+                </div>
+
+                {/* Main Campaign Headline */}
+                <div className="space-y-1">
+
+                  <h1
+                    className={`text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight uppercase leading-[1.05] drop-shadow-xs ${textColorClass}`}
+                  >
+                    {currentSlide.title}
+                  </h1>
+
+                  {currentSlide.subtitle && (
+                    <span
+                      className={`block text-xs sm:text-sm font-medium tracking-editorial uppercase pt-1 ${subtitleColorClass}`}
+                    >
+                      {currentSlide.subtitle}
+                    </span>
+                  )}
+
+                </div>
+
+                {/* Description */}
+                <p
+                  className={`text-xs sm:text-sm max-w-lg mx-auto lg:mx-0 leading-relaxed font-normal ${subtitleColorClass}`}
+                >
+                  {currentSlide.description}
+                </p>
+
+                {/* CTA Buttons */}
+                <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-2 w-full sm:w-auto">
+
+                  <Link
+                    href={currentSlide.ctaHref}
+                    className={`w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-3.5 text-xs font-bold tracking-editorial uppercase rounded-[2px] transition-all shadow-xs ${primaryBtnClass}`}
+                  >
+                    <span>
+                      {currentSlide.ctaText}
+                    </span>
+
+                    <ArrowRight size={14} />
+                  </Link>
+
+                  {currentSlide.secondaryCtaText &&
+                    currentSlide.secondaryCtaHref && (
+                      <Link
+                        href={currentSlide.secondaryCtaHref}
+                        className={`w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 border text-xs font-medium tracking-editorial uppercase rounded-[2px] transition-colors ${secondaryBtnClass}`}
+                      >
+                        <span>
+                          {currentSlide.secondaryCtaText}
+                        </span>
+                      </Link>
+                    )}
+
+                </div>
+
+                {/* Pagination Indicators */}
+                <div className="flex items-center justify-center lg:justify-start gap-1.5 sm:gap-2 pt-3 sm:pt-4">
+
+                  {HERO_SLIDES.map((slide, idx) => {
+
+                    const isActive =
+                      idx === currentIndex;
+
+                    return (
+                      <button
+                        key={slide.id}
+                        type="button"
+                        onClick={() =>
+                          handleSelectSlide(idx)
+                        }
+                        aria-label={`Go to slide ${idx + 1}`}
+                        className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                          isActive
+                            ? isDark
+                              ? 'w-7 bg-white'
+                              : 'w-7 bg-black'
+                            : isDark
+                            ? 'w-2 bg-white/35 hover:bg-white/70'
+                            : 'w-2 bg-black/35 hover:bg-black/70'
+                        }`}
+                      />
+                    );
+
+                  })}
+
+                </div>
+
+              </motion.div>
+
+            </AnimatePresence>
+
+          </div>
+
+          {/* ==========================================
+              RIGHT COLUMN — HERO IMAGE
+          ========================================== */}
+
+          <div className="lg:col-span-6 relative flex items-end justify-center order-1 lg:order-2 z-10 self-end min-h-[360px] sm:min-h-[460px] md:min-h-[540px] lg:min-h-[600px]">
+
+            {/* Left Arrow */}
+
+            <button
+              type="button"
+              onClick={() => {
+                handlePrev();
+                resetTimer();
+              }}
+              aria-label="Previous Slide"
+              className={`absolute left-0 sm:left-2 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border backdrop-blur-xs transition-all cursor-pointer ${arrowBtnClass}`}
+            >
+              <ChevronLeft
+                size={20}
+                strokeWidth={1.75}
+              />
+            </button>
+
+            {/* Main Hero Image */}
+
+            <div className="relative w-full h-[380px] sm:h-[480px] md:h-[560px] lg:h-[620px] xl:h-[680px] flex items-end justify-center overflow-hidden">
+
+              <AnimatePresence mode="wait">
+
+                <motion.div
+                  key={`image-${currentSlide.id}`}
+                  initial={{
+                    opacity: 0,
+                    x: direction > 0 ? 90 : -90,
+                    scale: 0.96,
+                  }}
+                  animate={{
+                    opacity: 1,
+                    x: 0,
+                    scale: 1,
+                  }}
+                  exit={{
+                    opacity: 0,
+                    x: direction > 0 ? -90 : 90,
+                    scale: 0.96,
+                  }}
+                  transition={{
+                    duration: 0.45,
+                    ease: [0.25, 1, 0.5, 1],
+                  }}
+                  className="relative w-full h-full flex items-end justify-center"
+                >
+
+                  <Image
+                    src={currentSlide.image}
+                    alt={currentSlide.title}
+                    fill
+                    priority
+                    unoptimized
+                    onError={(e) => {
+                      const target =
+                        e.target as HTMLImageElement;
+
+                      if (
+                        !target.src.includes(
+                          'hero1.png'
+                        )
+                      ) {
+                        target.src =
+                          '/hero/hero1.png';
+                      }
+                    }}
+                    className="object-contain object-bottom drop-shadow-2xl hover:scale-102 transition-transform duration-500"
+                  />
+
+                </motion.div>
+
+              </AnimatePresence>
+
+            </div>
+
+            {/* Right Arrow */}
+
+            <button
+              type="button"
+              onClick={() => {
+                handleNext();
+                resetTimer();
+              }}
+              aria-label="Next Slide"
+              className={`absolute right-0 sm:right-2 top-1/2 -translate-y-1/2 z-30 p-2 sm:p-3 rounded-full border backdrop-blur-xs transition-all cursor-pointer ${arrowBtnClass}`}
+            >
+              <ChevronRight
+                size={20}
+                strokeWidth={1.75}
+              />
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+
     </section>
   );
 };
