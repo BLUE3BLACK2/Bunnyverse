@@ -24,21 +24,32 @@ export const ShopByCategory: React.FC = () => {
   };
 
   return (
-    <section id="categories" className="py-12 sm:py-16 md:py-20 bg-white dark:bg-black transition-colors border-b border-[#E5E5E5] dark:border-[#292929]">
-      <div className="section-container space-y-8">
-        <div className="flex items-end justify-between border-b border-[#E5E5E5] dark:border-[#292929] pb-4">
-          <div>
-            <span className="text-[10px] uppercase font-mono font-medium tracking-editorial text-[#777777] dark:text-[#888888] block">
-              CATALOG DISCOVERY
-            </span>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-medium tracking-tight uppercase text-black dark:text-white mt-1">
+    <section id="categories" className="py-14 sm:py-18 md:py-24 bg-white dark:bg-black transition-colors border-b border-[#E5E5E5] dark:border-[#292929] overflow-hidden select-none">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5E5E5] dark:border-[#292929] pb-6">
+          <div className="space-y-1.5 max-w-2xl">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[4px] bg-black text-white dark:bg-white dark:text-black text-[9px] font-mono font-medium tracking-editorial uppercase">
+                <Sparkles size={10} />
+                <span>CATALOG DISCOVERY</span>
+              </span>
+              <span className="text-[11px] font-mono uppercase tracking-editorial text-[#777777] dark:text-[#888888]">
+                6 CURATED DEPARTMENTS
+              </span>
+            </div>
+
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-medium tracking-tight uppercase text-black dark:text-white">
               Shop by Category
             </h2>
+
+            <p className="text-xs sm:text-sm text-[#555555] dark:text-[#B5B5B5] leading-relaxed font-normal pt-1">
+              Explore official BUNNYVERSE merchandise categorized by fashion apparel, concert gear, collectibles, and daily lifestyle essentials.
+            </p>
           </div>
 
           <Link
             href="/categories"
-            className="group flex items-center gap-1.5 text-xs font-mono tracking-editorial uppercase text-[#555555] dark:text-[#B5B5B5] hover:text-black dark:hover:text-white transition-colors"
+            className="group inline-flex items-center gap-1.5 text-xs font-mono tracking-editorial uppercase text-[#555555] dark:text-[#B5B5B5] hover:text-black dark:hover:text-white transition-colors shrink-0"
           >
             <span>View All Categories</span>
             <ArrowRight size={13} className="group-hover:translate-x-1 transition-transform" />
